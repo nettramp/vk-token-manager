@@ -1,3 +1,6 @@
+
+
+```markdown
 # 🔑 VK Token Manager
 
 **Безопасное получение пользовательских токенов VK ID через OAuth 2.1 + PKCE**
@@ -23,7 +26,7 @@ VK Token Manager — удобное веб-приложение, которое 
 
 ## 🏗️ Архитектура
 
-
+```ascii
 ┌─────────────────────┐
 │   Пользователь      │
 │  (Браузер + HTTPS)  │
@@ -58,20 +61,24 @@ VK Token Manager — удобное веб-приложение, которое 
 │ OAuth 2.1  │  │ 5.199      │
 │ id.vk.com  │  │ api.vk.com │
 └────────────┘  └────────────┘
+```
 
+---
 
+## 🔄 Как это работает (пошагово)
 
-🔄 Как это работает (пошагово)
-Шаг 1: Подготовка
-Пользователь вводит Secret Key → приложение генерирует:
-
-code_verifier (секретный ключ PKCE)
-code_challenge (SHA-256 хеш)
-device_id (уникальный UUID)
-state (защита от CSRF)
+### Шаг 1: Подготовка
+Пользователь вводит **Secret Key** → приложение генерирует:
+- `code_verifier` (секретный ключ PKCE)
+- `code_challenge` (SHA-256 хеш)
+- `device_id` (уникальный UUID)
+- `state` (защита от CSRF)
 
 Всё сохраняется в сессии Flask.
-Шаг 2–5: Полный поток авторизации
+
+### Шаг 2–5: Полный поток авторизации
+
+```ascii
 Пользователь ──→ Ввод Secret Key ──→ /setup
                     │
                     ▼
@@ -99,10 +106,14 @@ https://oauth.vk.com/blank.html?code=vk2.a.xxxx...
                     │
                     ▼
    Получение: access_token + refresh_token + user_info
+```
 
-📁 Структура проекта
+---
 
-text/var/www/vk-token-manager/
+## 📁 Структура проекта
+
+```
+/var/www/vk-token-manager/
 ├── app.py                      # Основное Flask-приложение
 ├── venv/                       # Виртуальное окружение
 ├── templates/
@@ -114,15 +125,23 @@ text/var/www/vk-token-manager/
 │   └── manual_code.html
 ├── logs/                       # Логи
 └── .gitignore
+```
 
+---
 
-🚀 Установка на VPS (Ubuntu 22.04+ / Debian 11+)
+## 🚀 Установка на VPS (Ubuntu 22.04+ / Debian 11+)
 
-1. Установка зависимостей
-Bashsudo apt update && sudo apt upgrade -y
+### 1. Установка зависимостей
+
+```bash
+sudo apt update && sudo apt upgrade -y
 sudo apt install -y python3 python3-pip python3-venv nginx certbot python3-certbot-nginx
-2. Развёртывание проекта
-Bashsudo mkdir -p /var/www/vk-token-manager
+```
+
+### 2. Развёртывание проекта
+
+```bash
+sudo mkdir -p /var/www/vk-token-manager
 cd /var/www/vk-token-manager
 sudo python3 -m venv venv
 source venv/bin/activate
@@ -130,11 +149,20 @@ pip install flask requests gunicorn
 
 # Клонирование
 git clone https://github.com/nettramp/vk-token-manager.git .
-3. Настройка systemd-сервиса
+```
+
+### 3. Настройка systemd-сервиса
+
 Создайте файл:
-Bashsudo nano /etc/systemd/system/vk-token-manager.service
+
+```bash
+sudo nano /etc/systemd/system/vk-token-manager.service
+```
+
 Содержимое:
-ini[Unit]
+
+```ini
+[Unit]
 Description=VK Token Manager Gunicorn Instance
 After=network.target
 
@@ -149,70 +177,91 @@ RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
+```
+
 Запуск:
-Bashsudo systemctl daemon-reload
+
+```bash
+sudo systemctl daemon-reload
 sudo systemctl start vk-token-manager
 sudo systemctl enable vk-token-manager
-4. Настройка Nginx + SSL
-Подробная конфигурация (с редиректом http → https) — в оригинальном файле.
+```
+
+### 4. Настройка Nginx + SSL
+
+Подробная конфигурация (с редиректом http → https) — в оригинальном файле.  
 После настройки:
-Bashsudo certbot --nginx -d crossposter.ru -d www.crossposter.ru
 
-⚙️ Настройка приложения в VK ID Console
+```bash
+sudo certbot --nginx -d crossposter.ru -d www.crossposter.ru
+```
 
-Перейдите → https://id.vk.com/business/console
-Создайте приложение типа «Веб-сервис»
-Укажите:
-Базовый домен: crossposter.ru
-Доверенный Redirect URL: https://oauth.vk.com/blank.html
-Тип клиента: Конфиденциальный
+---
 
-Во вкладке Доступы включите: wall, photos, video, email
-Скопируйте:
-Client ID
-Secret Key (защищённый ключ)
-Service Key (сервисный ключ)
+## ⚙️ Настройка приложения в VK ID Console
 
+1. Перейдите → [https://id.vk.com/business/console](https://id.vk.com/business/console)
+2. Создайте приложение **типа «Веб-сервис»**
+3. Укажите:
+   - **Базовый домен**: `crossposter.ru`
+   - **Доверенный Redirect URL**: `https://oauth.vk.com/blank.html`
+   - **Тип клиента**: Конфиденциальный
+4. Во вкладке **Доступы** включите: `wall`, `photos`, `video`, `email`
+5. Скопируйте:
+   - **Client ID**
+   - **Secret Key** (защищённый ключ)
+   - **Service Key** (сервисный ключ)
 
+---
 
-📖 Как пользоваться
+## 📖 Как пользоваться
 
-Откройте https://crossposter.ru
-Вставьте Secret Key и нажмите «Продолжить»
-Нажмите «🔐 Открыть авторизацию VK»
-Авторизуйтесь в VK (откроется новая вкладка)
-Скопируйте code=vk2.a.xxxx... из адресной строки (oauth.vk.com/blank.html)
-Вернитесь в приложение, вставьте код и нажмите «✅ Получить токен»
+1. Откройте `https://crossposter.ru`
+2. Вставьте **Secret Key** и нажмите «Продолжить»
+3. Нажмите **«🔐 Открыть авторизацию VK»**
+4. Авторизуйтесь в VK (откроется новая вкладка)
+5. Скопируйте `code=vk2.a.xxxx...` из адресной строки (`oauth.vk.com/blank.html`)
+6. Вернитесь в приложение, вставьте код и нажмите **«✅ Получить токен»**
 
-Готово! Теперь у вас есть access_token и refresh_token.
+Готово! Теперь у вас есть `access_token` и `refresh_token`.
 
-⚠️ Рекомендации по безопасности
+---
 
-Никому не передавайте свои токены
-Всегда используйте HTTPS в продакшене
-Обновляйте access_token через refresh_token
-Service Key храните только на сервере
-Не оставляйте приложение открытым без необходимости
+## ⚠️ Рекомендации по безопасности
 
+- Никому не передавайте свои токены
+- Всегда используйте **HTTPS** в продакшене
+- Обновляйте `access_token` через `refresh_token`
+- **Service Key** храните только на сервере
+- Не оставляйте приложение открытым без необходимости
 
-📝 Лицензия
-MIT License — свободное использование с указанием авторства.
+---
 
-👤 Автор
-nettramp
-GitHub: https://github.com/nettramp
-Проект: https://github.com/nettramp/vk-token-manager
+## 📝 Лицензия
 
-📞 Поддержка
+**MIT License** — свободное использование с указанием авторства.
+
+---
+
+## 👤 Автор
+
+**nettramp**  
+GitHub: [https://github.com/nettramp](https://github.com/nettramp)  
+Проект: [https://github.com/nettramp/vk-token-manager](https://github.com/nettramp/vk-token-manager)
+
+---
+
+## 📞 Поддержка
+
 При возникновении проблем:
+- Проверьте логи: `journalctl -u vk-token-manager -f`
+- Убедитесь, что работает HTTPS (`curl -I https://ваш-домен.ru`)
+- Создайте Issue на GitHub
 
-Проверьте логи: journalctl -u vk-token-manager -f
-Убедитесь, что работает HTTPS (curl -I https://ваш-домен.ru)
-Создайте Issue на GitHub
+**Полезные ссылки:**
+- [Документация VK ID](https://id.vk.com/)
+- [VK API 5.199](https://dev.vk.com/reference)
+- [OAuth 2.1 Spec](https://oauth.net/2.1/)
+- [PKCE (RFC 7636)](https://datatracker.ietf.org/doc/html/rfc7636)
 
-Полезные ссылки:
-
-Документация VK ID
-VK API 5.199
-OAuth 2.1 Spec
-PKCE (RFC 7636)
+---
