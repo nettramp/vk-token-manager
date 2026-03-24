@@ -23,7 +23,7 @@ VK Token Manager — удобное веб-приложение, которое 
 
 ## 🏗️ Архитектура
 
-```ascii
+
 ┌─────────────────────┐
 │   Пользователь      │
 │  (Браузер + HTTPS)  │
@@ -59,7 +59,7 @@ VK Token Manager — удобное веб-приложение, которое 
 │ id.vk.com  │  │ api.vk.com │
 └────────────┘  └────────────┘
 
-ascii```
+
 
 🔄 Как это работает (пошагово)
 Шаг 1: Подготовка
@@ -72,7 +72,7 @@ state (защита от CSRF)
 
 Всё сохраняется в сессии Flask.
 Шаг 2–5: Полный поток авторизации
-```asciiПользователь ──→ Ввод Secret Key ──→ /setup
+Пользователь ──→ Ввод Secret Key ──→ /setup
                     │
                     ▼
           Генерация PKCE + state
@@ -99,9 +99,9 @@ https://oauth.vk.com/blank.html?code=vk2.a.xxxx...
                     │
                     ▼
    Получение: access_token + refresh_token + user_info
-ascii```
+
 📁 Структура проекта
-```ascii
+
 text/var/www/vk-token-manager/
 ├── app.py                      # Основное Flask-приложение
 ├── venv/                       # Виртуальное окружение
@@ -114,7 +114,7 @@ text/var/www/vk-token-manager/
 │   └── manual_code.html
 ├── logs/                       # Логи
 └── .gitignore
-ascii```
+
 
 🚀 Установка на VPS (Ubuntu 22.04+ / Debian 11+)
 
