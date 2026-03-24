@@ -9,18 +9,24 @@
 </head>
 <body class="bg-gray-950 text-white min-h-screen flex items-center justify-center">
     <div class="max-w-xl w-full p-8">
-        <h1 class="text-3xl font-bold mb-8">🔑 Введите код авторизации VK</h1>
+        <h1 class="text-3xl font-bold mb-8">🔑 Введите данные из VK</h1>
         
         <a href="{{ auth_url }}" target="_blank"
            class="block w-full bg-blue-600 hover:bg-blue-700 text-center py-6 rounded-3xl text-xl font-semibold mb-8 transition flex items-center justify-center gap-3">
             <i class="fa-brands fa-vk"></i> Открыть авторизацию VK ID
         </a>
 
-        <form method="POST" action="/submit_code" class="space-y-4">
+        <form method="POST" action="/submit_code" class="space-y-6">
             <div>
-                <label class="block text-sm mb-2">Код из адресной строки (code=...)</label>
+                <label class="block text-sm mb-2">code=...</label>
                 <input type="text" name="code" required placeholder="vk2.a.xf_..." 
                        class="w-full bg-gray-900 border border-gray-700 rounded-2xl px-5 py-4 text-lg font-mono">
+            </div>
+            <div>
+                <label class="block text-sm mb-2">device_id=...</label>
+                <input type="text" name="device_id" required placeholder="1234567890abcdef1234567890abcdef" 
+                       class="w-full bg-gray-900 border border-gray-700 rounded-2xl px-5 py-4 text-lg font-mono">
+                <p class="text-xs text-gray-400 mt-1">Скопируйте оба параметра из адресной строки после авторизации</p>
             </div>
             <button type="submit"
                     class="w-full bg-emerald-600 hover:bg-emerald-700 py-4 rounded-2xl font-semibold text-lg">
