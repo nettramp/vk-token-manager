@@ -1,0 +1,45 @@
+# /var/www/vk-token-manager/app.py
+from flask import Flask, render_template, request, session, jsonify
+import requests
+import secrets
+import os
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+
+# ⚠️ ВАЖНО: Для production используйте HTTPS
+VK_CONFIG = {
+    'client_id': '',
+    'client_secret': '',
+    'redirect_uri': 'https://crossposter.ru/callback',  # Измените на свой домен!
+    'api_version': '5.199',
+    'oauth_url': 'https://oauth.vk.com',
+}
+
+class VKTokenManager:
+    def __init__(self, client_id, client_secret, redirect_uri):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
+        self.base_url = VK_CONFIG['oauth_url']
+        self.api_url = 'https://api.vk.com/method'
+    
+    def get_auth_url(self, scope='wall,photos,video,email'):
+        state = secrets.token_hex(16)
+        params = {
+            'client_id': self.client_id,
+            'redirect_uri': self.redirect_uri,
+            'scope': scope,
+            'response_type': 'code',
+            'v': VK_CONFIG['api_version'],
+            'state': state,
+            'display': 'page'
+        }
+        query = '&'.join(f'{k}={v}' for k, v in params.items())
+        return f'{self.base_url}/authorize?{query}', state
+    
+    def exchange_code_for_token(self, code):
+        url = f'{self.base_url}/access_token'
+        params = {
+            'client_id': self.client_id,
+       

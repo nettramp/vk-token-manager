@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VK ID Token Manager</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+               min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { background: white; padding: 40px; border-radius: 20px; 
+                     box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 550px; width: 90%; }
+        h1 { color: #0077FF; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+        input { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; 
+                border-radius: 10px; font-size: 14px; }
+        input:focus { outline: none; border-color: #0077FF; }
+        .btn { width: 100%; padding: 15px; background: #0077FF; color: white; 
+               border: none; border-radius: 10px; font-size: 16px; font-weight: 600; 
+               cursor: pointer; transition: background 0.3s; }
+        .btn:hover { background: #0066DD; }
+        .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; 
+                   border-radius: 10px; margin-bottom: 20px; font-size: 13px; }
+        .info-box { background: #e7f3ff; border: 1px solid #0077FF; padding: 15px; 
+                    border-radius: 10px; margin-bottom: 20px; }
+        .info-box a { color: #0077FF; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 VK ID Token Manager</h1>
+        <p class="subtitle">Получение токенов через VK ID OAuth 2.1</p>
+        
+        <div class="warning">
+            ⚠️ <strong>Важно:</strong> Для работы нужны расширенные права доступа.
+            Убедитесь что в VK Console заполнены паспортные данные и права одобрены.
+        </div>
+        
+        <div class="info-box">
+            <strong>📋 Настройка VK ID:</strong><br>
+            1. <a href="https://id.vk.com/business/console" target="_blank">id.vk.com/business/console</a><br>
+            2. Приложение <strong>54499818</strong><br>
+            3. Вкладка "Доступы" → включите: Стена, Фото, Видео, Email<br>
+            4. Дождитесь модерации
+        </div>
+        
+        <form action="/setup" method="POST">
+            <div class="form-group">
+                <label for="client_id">Client ID</label>
+                <input type="text" id="client_id" name="client_id" value="54499818" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="client_secret">Secret Key (Защищённый ключ)</label>
+                <input type="password" id="client_secret" name="client_secret" required>
+            </div>
+            
+            <button type="submit" class="btn">🚀 Продолжить</button>
+        </form>
+    </div>
+</body>
+</html>

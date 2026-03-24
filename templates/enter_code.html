@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Введите код авторизации VK</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+               min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: white; padding: 40px; border-radius: 20px; 
+                     box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 650px; width: 100%; }
+        h1 { color: #0077FF; margin-bottom: 20px; }
+        .step { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .step-number { display: inline-block; background: #0077FF; color: white; 
+                       width: 30px; height: 30px; border-radius: 50%; text-align: center; 
+                       line-height: 30px; font-weight: bold; margin-right: 10px; }
+        .btn { display: inline-block; padding: 15px 30px; background: #0077FF; color: white; 
+               text-decoration: none; border-radius: 10px; font-size: 16px; font-weight: 600; 
+               transition: background 0.3s; border: none; cursor: pointer; }
+        .btn:hover { background: #0066DD; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .form-group { margin: 20px 0; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+        input { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; 
+                border-radius: 10px; font-size: 14px; }
+        input:focus { outline: none; border-color: #0077FF; }
+        .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; 
+                   border-radius: 10px; margin: 20px 0; font-size: 13px; }
+        .code-example { background: #2d2d2d; color: #f8f8f2; padding: 15px; 
+                        border-radius: 8px; font-family: monospace; font-size: 12px; 
+                        word-break: break-all; margin: 15px 0; }
+        .info-box { background: #e7f3ff; border: 1px solid #0077FF; padding: 15px; 
+                    border-radius: 10px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Получение токена VK ID</h1>
+        
+        <div class="warning">
+            ⚠️ <strong>Важно:</strong> Не закрывайте эту страницу пока не получите токен!
+            Сессия действительна 1 час.
+        </div>
+        
+        <div class="step">
+            <p><span class="step-number">1</span><strong>Нажмите кнопку авторизации ниже</strong></p>
+        </div>
+        
+        <div class="step">
+            <p><span class="step-number">2</span><strong>Авторизуйтесь через VK</strong></p>
+            <p style="margin-top: 10px; color: #666;">Откроется сайт VK в новой вкладке</p>
+        </div>
+        
+        <div class="step">
+            <p><span class="step-number">3</span><strong>Скопируйте код из адресной строки</strong></p>
+            <p style="margin-top: 10px; color: #666;">После авторизации VK перенаправит на страницу с кодом</p>
+            <div class="code-example">
+                https://oauth.vk.com/blank.html?<strong>code=vk2.a.xf_...</strong>&device_id=...
+            </div>
+            <p style="margin-top: 10px; color: #666;">Нужно скопировать только значение после <code>code=</code> (до <code>&</code>)</p>
+        </div>
+        
+        <div class="step">
+            <p><span class="step-number">4</span><strong>Вставьте код в поле ниже и нажмите "Получить токен"</strong></p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ auth_url }}" target="_blank" class="btn" id="authBtn">
+                🔐 Открыть авторизацию VK
+            </a>
+        </div>
+        
+        <form action="/submit_code" method="POST">
+            <div class="form-group">
+                <label for="code">Код авторизации (code=):</label>
+                <input type="text" id="code" name="code" required 
+                       placeholder="vk2.a.xf_..." 
+                       style="font-family: monospace; font-size: 16px;">
+            </div>
+            
+            <button type="submit" class="btn btn-success" style="width: 100%;">
+                ✅ Получить токен
+            </button>
+        </form>
+        
+        <div class="info-box">
+            <strong>💡 Совет:</strong> Откройте авторизацию в новой вкладке, 
+            скопируйте код и вернитесь на эту страницу для вставки кода.
+        </div>
+        
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="/" style="color: #0077FF;">← Начать заново</a>
+        </p>
+    </div>
+    
+    <script>
+        // Предупреждение если пользователь пытается закрыть страницу
+        window.addEventListener('beforeunload', function(e) {
+            if (document.getElementById('code').value === '') {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
