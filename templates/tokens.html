@@ -2,105 +2,87 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Токены VK ID</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-               min-height: 100vh; padding: 40px 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; 
-                     padding: 40px; border-radius: 20px; 
-                     box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        h1 { color: #0077FF; margin-bottom: 10px; }
-        .success { color: #28a745; margin-bottom: 30px; }
-        .token-box { background: #f8f9fa; border: 2px solid #e0e0e0; 
-                     border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-        .token-box h3 { color: #333; margin-bottom: 15px; }
-        .token-value { background: #fff; border: 1px solid #ddd; 
-                       padding: 15px; border-radius: 8px; font-family: monospace; 
-                       font-size: 13px; word-break: break-all; margin-bottom: 10px; }
-        .copy-btn { background: #0077FF; color: white; border: none; 
-                    padding: 10px 20px; border-radius: 8px; cursor: pointer; 
-                    font-size: 14px; transition: background 0.3s; }
-        .copy-btn:hover { background: #0066DD; }
-        .info-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .info-table td { padding: 10px; border-bottom: 1px solid #e0e0e0; }
-        .info-table td:first-child { font-weight: 600; color: #666; width: 40%; }
-        .warning { background: #fff3cd; border: 1px solid #ffc107; 
-                   padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .back-btn { display: inline-block; margin-top: 20px; color: #0077FF; 
-                    text-decoration: none; }
-        .badge { display: inline-block; background: #28a745; color: white; 
-                 padding: 3px 8px; border-radius: 12px; font-size: 11px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>✅ Токены получены! <span class="badge">OAuth 2.1</span></h1>
-        <p class="success">Авторизация через VK ID прошла успешно</p>
-        
-        <div class="warning">
-            ⚠️ <strong>Храните токены в безопасности!</strong> Не передавайте их третьим лицам.
-        </div>
-        
-        {% if user_info %}
-        <div class="token-box">
-            <h3>👤 Информация о пользователе</h3>
-            <table class="info-table">
-                <tr><td>User ID:</td><td>{{ user_info.get('user_id', 'N/A') }}</td></tr>
-                <tr><td>Имя:</td><td>{{ user_info.get('first_name', 'N/A') }}</td></tr>
-                <tr><td>Фамилия:</td><td>{{ user_info.get('last_name', 'N/A') }}</td></tr>
-                <tr><td>Email:</td><td>{{ user_info.get('email', 'N/A') }}</td></tr>
-                <tr><td>Фото:</td><td>{{ user_info.get('picture', 'N/A') }}</td></tr>
-            </table>
-        </div>
-        {% endif %}
-        
-        <div class="token-box">
-            <h3>🔑 Access Token</h3>
-            <div class="token-value" id="access_token">{{ token_data.get('access_token', '') }}</div>
-            <button class="copy-btn" onclick="copyToClipboard('access_token')">📋 Копировать</button>
-            
-            <table class="info-table">
-                <tr><td>Token Type:</td><td>{{ token_data.get('token_type', 'Bearer') }}</td></tr>
-                <tr><td>Expires In:</td><td>{{ token_data.get('expires_in', 'N/A') }} сек</td></tr>
-            </table>
-        </div>
-        
-        {% if token_data.get('refresh_token') %}
-        <div class="token-box">
-            <h3>🔄 Refresh Token</h3>
-            <div class="token-value" id="refresh_token">{{ token_data.get('refresh_token', '') }}</div>
-            <button class="copy-btn" onclick="copyToClipboard('refresh_token')">📋 Копировать</button>
-        </div>
-        {% endif %}
-        
-        {% if token_data.get('id_token') %}
-        <div class="token-box">
-            <h3>🆔 ID Token</h3>
-            <div class="token-value" id="id_token">{{ token_data.get('id_token', '') }}</div>
-            <button class="copy-btn" onclick="copyToClipboard('id_token')">📋 Копировать</button>
-        </div>
-        {% endif %}
-        
-        <div class="token-box">
-            <h3>⚙️ Service Key</h3>
-            <div class="token-value" id="service_key">{{ config.get('client_secret', '') }}</div>
-            <button class="copy-btn" onclick="copyToClipboard('service_key')">📋 Копировать</button>
-        </div>
-        
-        <a href="/" class="back-btn">← Начать заново</a>
-    </div>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Токены получены</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script>
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).textContent;
+        function copyToClipboard(text, btn) {
             navigator.clipboard.writeText(text).then(() => {
-                alert('Токен скопирован!');
-            }).catch(err => {
-                console.error('Ошибка:', err);
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Скопировано!';
+                setTimeout(() => btn.innerHTML = original, 2000);
             });
         }
     </script>
+</head>
+<body class="bg-gray-950 text-white">
+    <div class="max-w-3xl mx-auto p-8">
+        <h1 class="text-4xl font-bold text-emerald-400 mb-2">✅ Токены успешно получены</h1>
+        <p class="text-gray-400 mb-8">OAuth 2.1 + PKCE — всё по актуальной документации</p>
+
+        {% if user_info %}
+        <div class="mb-8">
+            <h2 class="text-xl mb-3">👤 Пользователь</h2>
+            <div class="bg-gray-900 rounded-3xl p-6 grid grid-cols-2 gap-4 text-sm">
+                <div><span class="text-gray-400">ID:</span> {{ user_info.user_id or '—' }}</div>
+                <div><span class="text-gray-400">Имя:</span> {{ user_info.first_name or '—' }} {{ user_info.last_name or '' }}</div>
+                <div><span class="text-gray-400">Email:</span> {{ user_info.email or '—' }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="space-y-8">
+            <!-- Access Token -->
+            <div class="bg-gray-900 rounded-3xl p-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xl">🔑 Access Token</h2>
+                    <button onclick="copyToClipboard('{{ token_data.access_token }}', this)"
+                            class="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-2xl text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-copy"></i> Копировать
+                    </button>
+                </div>
+                <p class="font-mono bg-black p-4 rounded-2xl break-all text-sm">{{ token_data.access_token }}</p>
+                <p class="text-xs text-gray-400 mt-2">Действует {{ token_data.expires_in }} секунд</p>
+            </div>
+
+            {% if token_data.refresh_token %}
+            <div class="bg-gray-900 rounded-3xl p-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xl">🔄 Refresh Token</h2>
+                    <button onclick="copyToClipboard('{{ token_data.refresh_token }}', this)"
+                            class="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-2xl text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-copy"></i> Копировать
+                    </button>
+                </div>
+                <p class="font-mono bg-black p-4 rounded-2xl break-all text-sm">{{ token_data.refresh_token }}</p>
+                <form method="POST" action="/refresh" class="mt-4">
+                    <input type="hidden" name="refresh_token" value="{{ token_data.refresh_token }}">
+                    <button type="submit"
+                            class="text-sm bg-amber-600 hover:bg-amber-700 px-8 py-3 rounded-2xl">Обновить токен сейчас</button>
+                </form>
+            </div>
+            {% endif %}
+
+            {% if token_data.id_token %}
+            <div class="bg-gray-900 rounded-3xl p-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xl">🆔 ID Token (JWT)</h2>
+                    <button onclick="copyToClipboard('{{ token_data.id_token }}', this)"
+                            class="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-2xl text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-copy"></i> Копировать
+                    </button>
+                </div>
+                <p class="font-mono bg-black p-4 rounded-2xl break-all text-sm">{{ token_data.id_token }}</p>
+            </div>
+            {% endif %}
+
+            <div class="text-center pt-8">
+                <a href="/" class="inline-flex items-center gap-2 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-rotate-left"></i> Начать заново
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
