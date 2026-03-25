@@ -17,6 +17,9 @@
         </a>
 
         <form method="POST" action="/submit_code" class="space-y-6">
+            <!-- Скрытое поле — теперь Client ID точно дойдёт -->
+            <input type="hidden" name="client_id" value="{{ client_id }}">
+
             <div>
                 <label class="block text-sm mb-2">code=...</label>
                 <input type="text" name="code" required placeholder="vk2.a.xf_..." 
@@ -26,7 +29,7 @@
                 <label class="block text-sm mb-2">device_id=...</label>
                 <input type="text" name="device_id" required placeholder="1234567890abcdef1234567890abcdef" 
                        class="w-full bg-gray-900 border border-gray-700 rounded-2xl px-5 py-4 text-lg font-mono">
-                <p class="text-xs text-gray-400 mt-1">Скопируйте оба параметра из адресной строки после авторизации</p>
+                <p class="text-xs text-gray-400 mt-1">Скопируйте оба параметра из адресной строки после авторизации[](https://oauth.vk.com/blank.html?...)</p>
             </div>
             <button type="submit"
                     class="w-full bg-emerald-600 hover:bg-emerald-700 py-4 rounded-2xl font-semibold text-lg">

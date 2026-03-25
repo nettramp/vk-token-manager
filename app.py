@@ -114,11 +114,12 @@ def index():
 def setup():
     client_id = request.form.get('client_id', '').strip()
     client_secret = request.form.get('client_secret', '').strip()
-    scope = request.form.get('scope', 'wall,photos,video,email').strip()
+    scope = request.form.get('scope', 'wall,photos,video,email,groups').strip()
 
     if not client_id:
         return render_template('error.html', error='Укажите Client ID')
 
+    # Сохраняем в сессию (на всякий случай)
     session['client_id'] = client_id
     session['client_secret'] = client_secret
     session['scope'] = scope
@@ -126,20 +127,24 @@ def setup():
     manager = VKTokenManager(client_id, client_secret)
     auth_url, state = manager.get_auth_url(scope)
 
-    return render_template('enter_code.html', auth_url=auth_url)
-
-
+    # Передаём client_id в шаблон, чтобы не зависеть только от сессии
+    return render_template('enter_code.html', 
+                           auth_url=auth_url, 
+                           client_id=client_id)
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
     code = request.form.get('code', '').strip()
     device_id = request.form.get('device_id', '').strip() or session.get('pkce_device_id')
+    client_id_from_form = request.form.get('client_id')
+
+    # Приоритет — из формы (надежнее), потом из сессии
+    client_id = client_id_from_form or session.get('client_id')
 
     if not code or not device_id:
         return render_template('error.html', error='Не указан code или device_id')
 
-    client_id = session.get('client_id')
     if not client_id:
-        return redirect(url_for('index'))
+        return render_template('error.html', error='Client ID не найден. Начните заново.')
 
     manager = VKTokenManager(client_id, session.get('client_secret', ''))
 
