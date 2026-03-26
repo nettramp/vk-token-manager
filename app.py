@@ -44,6 +44,7 @@ class VKTokenManager:
         code_verifier, code_challenge = generate_pkce()
         device_id = generate_device_id()
 
+    # Сохраняем в сессию как резерв (на всякий случай)
         session['pkce_code_verifier'] = code_verifier
         session['pkce_state'] = state
         session['pkce_device_id'] = device_id
@@ -59,25 +60,20 @@ class VKTokenManager:
             'code_challenge_method': 'S256',
             'device_id': device_id,
         }
-        return f'{VK_AUTH_URL}?{urlencode(params)}', state
-
-    def exchange_code_for_token(self, code: str, device_id: str):
-        code_verifier = session.get('pkce_code_verifier')
-        if not code_verifier:
-            return {'error': 'Сессия истекла. Начните заново.'}
-
+    return f'{VK_AUTH_URL}?{urlencode(params)}', state, code_verifier, device_id
+    
+    def exchange_code_for_token(self, code: str, device_id: str, code_verifier: str):
         data = {
             'grant_type': 'authorization_code',
             'code': code,
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
-            'device_id': device_id,               # теперь берём из формы (или сессии)
+            'device_id': device_id,
             'code_verifier': code_verifier,
         }
         response = requests.post(VK_TOKEN_URL, data=data,
                                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
         return response.json()
-
     def get_user_info(self, access_token: str):
         response = requests.post(VK_USER_INFO_URL, data={'access_token': access_token},
                                  headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -119,36 +115,35 @@ def setup():
     if not client_id:
         return render_template('error.html', error='Укажите Client ID')
 
-    # Сохраняем в сессию (на всякий случай)
     session['client_id'] = client_id
     session['client_secret'] = client_secret
     session['scope'] = scope
 
     manager = VKTokenManager(client_id, client_secret)
-    auth_url, state = manager.get_auth_url(scope)
+    auth_url, state, code_verifier, device_id = manager.get_auth_url(scope)
 
-    # Передаём client_id в шаблон, чтобы не зависеть только от сессии
     return render_template('enter_code.html', 
-                           auth_url=auth_url, 
-                           client_id=client_id)
+                           auth_url=auth_url,
+                           client_id=client_id,
+                           code_verifier=code_verifier,
+                           device_id=device_id)
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
     code = request.form.get('code', '').strip()
-    device_id = request.form.get('device_id', '').strip() or session.get('pkce_device_id')
-    client_id_from_form = request.form.get('client_id')
+    device_id = request.form.get('device_id', '').strip()
+    code_verifier = request.form.get('code_verifier', '').strip() or session.get('pkce_code_verifier')
+    client_id = request.form.get('client_id') or session.get('client_id')
 
-    # Приоритет — из формы (надежнее), потом из сессии
-    client_id = client_id_from_form or session.get('client_id')
-
-    if not code or not device_id:
-        return render_template('error.html', error='Не указан code или device_id')
+    if not code or not device_id or not code_verifier:
+        return render_template('error.html', error='Не указан code, device_id или code_verifier')
 
     if not client_id:
         return render_template('error.html', error='Client ID не найден. Начните заново.')
 
     manager = VKTokenManager(client_id, session.get('client_secret', ''))
 
-    token_data = manager.exchange_code_for_token(code, device_id)
+    # Передаём code_verifier явно (больше не берём только из сессии)
+    token_data = manager.exchange_code_for_token(code, device_id, code_verifier)
 
     if 'access_token' in token_data:
         user_info = manager.get_user_info(token_data['access_token'])
@@ -159,7 +154,7 @@ def submit_code():
     else:
         error_msg = token_data.get('error_description') or token_data.get('error') or 'Неизвестная ошибка'
         app.logger.error(f"VK error: {token_data}")
-        return render_template('error.html', error=error_msg)
+        return render_template('error.html', error=error_msg)   
 @app.route('/refresh', methods=['POST'])
 def refresh():
     refresh_token = request.form.get('refresh_token')
