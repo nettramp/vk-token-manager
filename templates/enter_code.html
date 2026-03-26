@@ -17,12 +17,13 @@
         </a>
 
         <form method="POST" action="/submit_code" class="space-y-6">
+            <!-- Скрытые поля — обязательно должны быть -->
             <input type="hidden" name="client_id" value="{{ client_id }}">
             <input type="hidden" name="code_verifier" value="{{ code_verifier }}">
             <input type="hidden" name="device_id" value="{{ device_id }}">
 
             <div>
-                <label class="block text-sm mb-2">code=...</label>
+                <label class="block text-sm mb-2 font-medium">code=...</label>
                 <input type="text" name="code" required placeholder="vk2.a.xf_..." 
                        class="w-full bg-gray-900 border border-gray-700 rounded-2xl px-5 py-4 text-lg font-mono">
             </div>
@@ -33,10 +34,13 @@
             </button>
         </form>
 
-        <p class="text-xs text-gray-400 mt-6 text-center">
-            device_id и code_verifier уже автоматически подставлены.<br>
-            Просто скопируйте <strong>code=...</strong> из адресной строки новой вкладки.
-        </p>
+        <div class="mt-6 text-xs text-gray-400 bg-gray-900 p-4 rounded-2xl">
+            <strong>Как получить code:</strong><br>
+            1. Нажми кнопку выше → авторизуйся в VK<br>
+            2. После авторизации тебя перекинет на страницу с адресной строкой:<br>
+            <span class="font-mono text-blue-400">https://oauth.vk.com/blank.html?code=vk2.a.xf_...&amp;device_id=...</span><br>
+            3. Просто скопируй значение после <strong>code=</strong> и вставь в поле выше.
+        </div>
 
         <a href="/" class="text-gray-400 hover:text-white text-sm mt-8 inline-block">← Начать заново</a>
     </div>
