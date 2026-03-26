@@ -132,16 +132,28 @@ def setup():
 
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
-    code = request.form.get('code', '').strip()
+    raw_input = request.form.get('code', '').strip()
     device_id = request.form.get('device_id', '').strip()
     code_verifier = request.form.get('code_verifier', '').strip() or session.get('pkce_code_verifier')
     client_id = request.form.get('client_id') or session.get('client_id')
 
-    if not code or not device_id or not code_verifier:
+    if not raw_input or not device_id or not code_verifier:
         return render_template('error.html', error='Не указан code, device_id или code_verifier')
 
     if not client_id:
         return render_template('error.html', error='Client ID не найден. Начните заново.')
+
+    # Умная обработка: вытаскиваем code даже если вставлена вся ссылка
+    import urllib.parse
+    if 'code=' in raw_input:
+        parsed = urllib.parse.urlparse(raw_input)
+        query_params = urllib.parse.parse_qs(parsed.query)
+        code = query_params.get('code', [''])[0]
+    else:
+        code = raw_input
+
+    if not code:
+        return render_template('error.html', error='Не удалось извлечь code')
 
     manager = VKTokenManager(client_id, session.get('client_secret', ''))
 
@@ -158,7 +170,7 @@ def submit_code():
         app.logger.error(f"VK error: {token_data}")
         return render_template('error.html', error=error_msg)
 
-
+        
 @app.route('/refresh', methods=['POST'])
 def refresh():
     refresh_token = request.form.get('refresh_token')

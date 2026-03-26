@@ -17,7 +17,6 @@
         </a>
 
         <form method="POST" action="/submit_code" class="space-y-6">
-            <!-- Скрытые поля — обязательно должны быть -->
             <input type="hidden" name="client_id" value="{{ client_id }}">
             <input type="hidden" name="code_verifier" value="{{ code_verifier }}">
             <input type="hidden" name="device_id" value="{{ device_id }}">
@@ -26,6 +25,10 @@
                 <label class="block text-sm mb-2 font-medium">code=...</label>
                 <input type="text" name="code" required placeholder="vk2.a.xf_..." 
                        class="w-full bg-gray-900 border border-gray-700 rounded-2xl px-5 py-4 text-lg font-mono">
+                <p class="text-xs text-gray-400 mt-2">
+                    Вставь сюда <strong>только значение code</strong><br>
+                    (всё, что после <code class="bg-gray-800 px-1 rounded">code=</code> и до первого &amp;)
+                </p>
             </div>
 
             <button type="submit"
@@ -34,12 +37,9 @@
             </button>
         </form>
 
-        <div class="mt-6 text-xs text-gray-400 bg-gray-900 p-4 rounded-2xl">
-            <strong>Как получить code:</strong><br>
-            1. Нажми кнопку выше → авторизуйся в VK<br>
-            2. После авторизации тебя перекинет на страницу с адресной строкой:<br>
-            <span class="font-mono text-blue-400">https://oauth.vk.com/blank.html?code=vk2.a.xf_...&amp;device_id=...</span><br>
-            3. Просто скопируй значение после <strong>code=</strong> и вставь в поле выше.
+        <div class="mt-8 text-xs bg-gray-900 p-5 rounded-3xl border border-gray-700">
+            <strong>Пример того, что нужно скопировать:</strong><br>
+            <span class="font-mono text-emerald-400 break-all">vk2.a.qcPfprGWVT_MCqaELg6Cp39j53e_H-9C-6zbO2p4BOQvbr3WF_YIEpFQrdtZjdzR5Xa28SXUucdZF2eN_8qaUYblBjvTmX4ewQgPi4S3IkXSeO6OJBX_rJ5yYdTKb5A6xBdGWGqf8Ww7_Uox6uv3MqEYVlsYHVtJn9rHjNNPyo7cWH8YTjSxQMgQd4GNgSOWnJLDZ_LMDHhzl60LRsoCk-WpiqV5rBUACjGvzeCs7uw</span>
         </div>
 
         <a href="/" class="text-gray-400 hover:text-white text-sm mt-8 inline-block">← Начать заново</a>
