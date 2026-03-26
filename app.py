@@ -132,4 +132,58 @@ def setup():
 
 @app.route('/submit_code', methods=['POST'])
 def submit_code():
-   
+    code = request.form.get('code', '').strip()
+    device_id = request.form.get('device_id', '').strip()
+    code_verifier = request.form.get('code_verifier', '').strip() or session.get('pkce_code_verifier')
+    client_id = request.form.get('client_id') or session.get('client_id')
+
+    if not code or not device_id or not code_verifier:
+        return render_template('error.html', error='Не указан code, device_id или code_verifier')
+
+    if not client_id:
+        return render_template('error.html', error='Client ID не найден. Начните заново.')
+
+    manager = VKTokenManager(client_id, session.get('client_secret', ''))
+
+    token_data = manager.exchange_code_for_token(code, device_id, code_verifier)
+
+    if 'access_token' in token_data:
+        user_info = manager.get_user_info(token_data['access_token'])
+        return render_template('tokens.html',
+                               token_data=token_data,
+                               user_info=user_info,
+                               client_secret=session.get('client_secret', ''))
+    else:
+        error_msg = token_data.get('error_description') or token_data.get('error') or 'Неизвестная ошибка'
+        app.logger.error(f"VK error: {token_data}")
+        return render_template('error.html', error=error_msg)
+
+
+@app.route('/refresh', methods=['POST'])
+def refresh():
+    refresh_token = request.form.get('refresh_token')
+    device_id = session.get('pkce_device_id')
+    client_id = session.get('client_id')
+
+    if not refresh_token or not device_id or not client_id:
+        return jsonify({'error': 'Недостаточно данных для обновления'}), 400
+
+    manager = VKTokenManager(client_id, session.get('client_secret', ''))
+    new_tokens = manager.refresh_token(refresh_token, device_id)
+
+    return jsonify(new_tokens)
+
+
+@app.route('/get_service_token', methods=['POST'])
+def get_service_token():
+    client_id = session.get('client_id')
+    client_secret = session.get('client_secret')
+    if not client_id or not client_secret:
+        return jsonify({'error': 'Сначала настройте приложение'}), 400
+
+    manager = VKTokenManager(client_id, client_secret)
+    return jsonify(manager.get_service_token())
+
+
+if __name__ == '__main__':
+    app.run(debug=False, host='0.0.0.0', port=5000)
